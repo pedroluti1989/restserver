@@ -3,36 +3,32 @@
 const {response, request} = require('express');
 const Usuario = require('../models/usuario');
 const bcryptjs  = require('bcryptjs');
-const { validationResult } = require('express-validator');
 
 
-const usuariosGet = (req = request, res = response) =>{
+const usuariosGet = async (req = request, res = response) =>{
 
-    const {nombre, edad}= req.query
+
+    const {limite = 3} = req.body;
+    const query = {estado:true};
+
+    const [total, usuarios] = await Promise.all([ // permiten que las promesas se ejecuten en simultaneo y no hya bloqueos
+        Usuario.countDocuments(query),
+        Usuario.find(query)
+         .limit(Number(limite))
+
+    ])
     res.json({
-        msg : 'GET API',
-        nombre
+        total,
+        usuarios
     });
 }
 
 const usuariosPost  = async (req, res = response) =>{
 
-    const errors = validationResult(req);
-    if (!errors.isEmpty){
-        return res.status(400).json(errors)
-    }
+
 
     const {nombre, correo, password, rol} = req.body;
     const usuario = new Usuario({nombre, correo, password, rol});
-
-    //VERIFICAR SI EL CORREO EXISTE
-
-    const existeEmail = Usuario.findOne({correo});
-    if (existeEmail){
-        return res.status(400).json({
-            msg: "Ese correo ya esta registrado"
-        });
-    }
 
     //ENCRIPTAR LA CONTRASEÑA
 
@@ -47,18 +43,29 @@ const usuariosPost  = async (req, res = response) =>{
 }
 
 
-const usuariosPut = (req, res = response) =>{
-
+const usuariosPut = async (req, res = response) =>{
     const {id} = req.params
+    const {_id, password, google, correo, ...resto} = req.body;
+
+    if (password){
+        const salt = bcryptjs.genSaltSync();
+        resto.password = bcryptjs.hashSync(password, salt );
+    }
+
+    const usuario = await Usuario.findByIdAndUpdate(id, resto)
     res.json({
         msg : 'PUT API',
-        id
+        usuario
     });
 }
 
-const usuariosDelete = (req, res = response) =>{
+const usuariosDelete = async (req, res = response) =>{
+
+    const {id} = req.params;
+  //  const usuario = await Usuario.findByIdAndDelete(id);
+    const usuario = await Usuario.findByIdAndUpdate(id, {estado:false})
     res.json({
-        msg : 'DELETE API'
+       usuario
     });
 }
 
