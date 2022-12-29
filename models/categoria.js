@@ -1,0 +1,25 @@
+const {Schema, model} = require('mongoose')
+
+const CategoriaSchema = Schema ({
+    nombre:{
+        type:String,
+        required:[true, 'El Nombre es obligatorio'],
+        unique:true
+
+
+    },
+    estado:{
+        type:Boolean,
+        required:true,
+        default: true
+
+    },
+    usuario:{
+        type:Schema.Types.ObjectId,
+        ref: 'Usuario',
+        default: true
+
+    }
+})
+
+module.exports = model('Categoria', CategoriaSchema)
