@@ -27,7 +27,7 @@ const crearCategoria = async (req, res = response) =>{
     const nombre = req.body.nombre.toUpperCase()
     const categoriaDB = Categoria.findOne({nombre})
     console.log('este es la categoria q quiero crear',nombre)
-
+ /*
     if(categoriaDB){
         return res.status(400).json({
             msg: `La Categoria ${nombre}, ya existe`
@@ -35,7 +35,7 @@ const crearCategoria = async (req, res = response) =>{
          
         })
     }
-
+*/
     //Generar la info a guardar
     const data = {
         nombre,
