@@ -1,6 +1,6 @@
 
 const { isValidObjectId } = require("mongoose")
-const { Usuario } = require("../models")
+const { Usuario, Categoria, Producto } = require("../models")
 
 const coleccionesExistentes = [
     "usuarios",
@@ -29,6 +29,48 @@ const buscarUsuarios = async (termino ='', res=response) =>{
     })
 }
 
+/* Buscar las categoria/s */
+const buscarCategorias = async (termino ='', res=response) =>{
+    const esMongoID = isValidObjectId(termino)
+    if (esMongoID) {
+        const categoria = await Categoria.findById(termino)
+        res.json({
+            results: (categoria)? [categoria]:[]
+        })
+    }
+ 
+    //busco por busqueda aproximada acorde al Nombre
+    const expRegular = RegExp(termino, 'i')
+    const categorias = await Categoria.find({
+        $or: [{nombre:expRegular}],
+        $and: [{estado:true}],
+    })
+    res.json({
+        results: categorias
+    })
+}
+
+/* Buscar lo/s producto/s */
+const buscarProductos = async (termino ='', res=response) =>{
+    const esMongoID = isValidObjectId(termino)
+    if (esMongoID) {
+        const producto = await Producto.findById(termino)
+        res.json({
+            results: (producto)? [producto]:[]
+        })
+    }
+ 
+    //busco por busqueda aproximada acorde al Nombre
+    const expRegular = RegExp(termino, 'i')
+    const productos = await Producto.find({
+        $or: [{nombre:expRegular}],
+        $and: [{estado:true}],
+    })
+    res.json({
+        results: productos
+    })
+}
+
 
 const buscar = (req, res =  response) =>{
     
@@ -45,10 +87,10 @@ const buscar = (req, res =  response) =>{
             buscarUsuarios(termino, res)     
         break;
         case 'productos':
-            
+            buscarProductos(termino, res)
          break;
         case 'categorias':
-            
+            buscarCategorias(termino, res)
         break;
     
         default:
