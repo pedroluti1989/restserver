@@ -11,22 +11,25 @@ const coleccionesExistentes = [
 
 const buscarUsuarios = async (termino ='', res=response) =>{
     const esMongoID = isValidObjectId(termino)
+    console.log("este es el id "+esMongoID)
     if (esMongoID) {
         const usuario = await Usuario.findById(termino)
-        res.json({
+        return res.json({
             results: (usuario)? [usuario]:[]
         })
     }
  
     //busco por busqueda aproximada acorde al Nombre
-    const expRegular = RegExp(termino, 'i')
+
+    const expRegular = new RegExp(termino, 'i')
     const usuarios = await Usuario.find({
-        $or: [{nombre:expRegular},{email:expRegular}],
+        $or: [{nombre:expRegular}],
         $and: [{estado:true}],
     })
     res.json({
         results: usuarios
     })
+
 }
 
 /* Buscar las categoria/s */
@@ -34,7 +37,7 @@ const buscarCategorias = async (termino ='', res=response) =>{
     const esMongoID = isValidObjectId(termino)
     if (esMongoID) {
         const categoria = await Categoria.findById(termino)
-        res.json({
+        return res.json({
             results: (categoria)? [categoria]:[]
         })
     }
@@ -45,7 +48,7 @@ const buscarCategorias = async (termino ='', res=response) =>{
         $or: [{nombre:expRegular}],
         $and: [{estado:true}],
     })
-    res.json({
+    return res.json({
         results: categorias
     })
 }
@@ -55,7 +58,7 @@ const buscarProductos = async (termino ='', res=response) =>{
     const esMongoID = isValidObjectId(termino)
     if (esMongoID) {
         const producto = await Producto.findById(termino)
-        res.json({
+        return res.json({
             results: (producto)? [producto]:[]
         })
     }
@@ -66,7 +69,7 @@ const buscarProductos = async (termino ='', res=response) =>{
         $or: [{nombre:expRegular}],
         $and: [{estado:true}],
     })
-    res.json({
+    return res.json({
         results: productos
     })
 }
@@ -92,7 +95,7 @@ const buscar = (req, res =  response) =>{
         case 'categorias':
             buscarCategorias(termino, res)
         break;
-    
+ 
         default:
             res.status(500).json({
                 msg: 'Ocurrio un error al ejecutar la busqueda'
